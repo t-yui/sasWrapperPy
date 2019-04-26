@@ -139,7 +139,7 @@ if __name__ == '__main__':
                     getCurrentDir()
                     )
 
-    #
+    # sas execute section
     if dat:
         try:
             convertSASDATtoCSV(sas_path, infile, logfile, outfile, splash)
