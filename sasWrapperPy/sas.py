@@ -17,7 +17,8 @@ def argParse():
         '-i',
         '--input',
         dest='infile',
-        type=str
+        type=str,
+        required=True
         )
     parser.add_argument(
         '-l',
