@@ -33,19 +33,6 @@ def argParse():
         dest='outfile',
         type=str
         )
-    parser.add_argument(
-        '-s',
-        '--splash',
-        action='store_true',
-        default=False
-        )
-    parser.add_argument(
-        '-d',
-        '--dat',
-        default=False,
-        action='store_true',
-        dest="dat"
-        )
     args = parser.parse_args()
     return args
 
@@ -57,20 +44,25 @@ def confParse():
     return config
 
 
-def sasExec(sas_path, infile, logfile, outfile, splash):
+def sasExec(sas_path, infile, logfile, outfile):
+    # convert path from linux to windows
+    infile = convertPath(infile)
+    logfile = convertPath(logfile)
+    outfile = convertPath(outfile)
+
+    # sas execution
     cmd = sas_path + '/sas.exe ' \
-            + ' -SYSIN ' + infile \
-            + ' -LOG ' + logfile \
-            + ' -PRINT ' + outfile
-    if not splash:
-        cmd = cmd + ' -NOSPLASH'
+        + ' -SYSIN ' + infile \
+        + ' -LOG ' + logfile \
+        + ' -PRINT ' + outfile \
+        + ' -NOSPLASH'
     os.system(cmd)
 
 
-def convertSASDATtoCSV(sas_path, infile, logfile, outfile, splash):
-    infile_linux = convertPath(infile, w_to_l=False)
-    infile_base = os.path.basename(infile_linux)
+def convertSASDATtoCSV(sas_path, infile, logfile, outfile):
+    infile_base = os.path.basename(infile)
     infile_name, ext = os.path.splitext(infile_base)
+    infile = convertPath(infile)
     outfile_name = getCurrentDir() + '/' + infile_name + '.csv'
     outfile_name = convertPath(outfile_name)
 
@@ -80,12 +72,12 @@ def convertSASDATtoCSV(sas_path, infile, logfile, outfile, splash):
         pass
 
     cmd = 'echo \"' \
-            + 'data ' + infile_name + '; ' \
-            + 'set \'' + infile.replace('\\', '\\\\') + '\'; run; ' \
-            + 'proc export data = ' + infile_name + ' ' \
-            + 'outfile = \'' + outfile_name.replace('\\', '\\\\') + '\' ' \
-            + 'dbms = csv replace; run; \"' \
-            + '> ./tmp_convert/convert.sas'
+        + 'data ' + infile_name + '; ' \
+        + 'set \'' + infile.replace('\\', '\\\\') + '\'; run; ' \
+        + 'proc export data = ' + infile_name + ' ' \
+        + 'outfile = \'' + outfile_name.replace('\\', '\\\\') + '\' ' \
+        + 'dbms = csv replace; run; \"' \
+        + '> ./tmp_convert/convert.sas'
     os.system(cmd)
     conv_prog = convertPath(getCurrentDir() + '/tmp_convert/convert.sas')
     if logfile == getCurrentDir():
@@ -93,8 +85,7 @@ def convertSASDATtoCSV(sas_path, infile, logfile, outfile, splash):
     sasExec(sas_path,
             conv_prog,
             logfile,
-            outfile,
-            splash)
+            outfile,)
     try:
         os.system('rm -rf ./tmp_convert')
     except:
@@ -117,40 +108,82 @@ def getCurrentDir():
     return cur_dir
 
 
+def convertEncode(txtfile, sjis_to_utf8=True):
+    if sjis_to_utf8:
+        _from = 'sjis'
+        _to = 'utf-8'
+    else:
+        _from = 'utf-8'
+        _to = 'sjis'
+    cmd = 'iconv' \
+        + ' -f ' + _from \
+        + ' -t ' + _to \
+        + ' ' + txtfile \
+        + ' -o ' + txtfile \
+        + ' >/dev/null 2>&1'
+    try:
+        subprocess.check_call(cmd, shell=True)
+        msg = txtfile + ' : Encoding was converted' \
+            + ' from ' + _from \
+            + ' to ' + _to
+        logger.info(msg)
+    except:
+        msg = txtfile + ' : Encoding was not converted.'
+        logger.warning(msg)
+
+
 if __name__ == '__main__':
     args = argParse()
     config = confParse()
 
     # get arguments and configs
     sas_path = config['GENERAL']['sas_path']
-    infile = convertPath(args.infile)
+    infile = args.infile
     logfile = args.logfile
     outfile = args.outfile
-    splash = args.splash
-    dat = args.dat
 
-    # initialize
+    # get ext information of infile
+    infile_base = os.path.basename(infile)
+    infile_name, ext = os.path.splitext(infile_base)
+    infile_root, infile_ext = os.path.splitext(infile)
+
+    # initialize path
     if logfile == '':
-        logfile = convertPath(
-                    getCurrentDir()
-                    )
+        logfile = getCurrentDir() \
+                + '/' + infile_name \
+                + '.log'
     if outfile == '':
-        outfile = convertPath(
-                    getCurrentDir()
-                    )
+        outfile = getCurrentDir() \
+                + '/' + infile_name \
+                + '.lst'
 
     # sas execute section
-    if dat:
+    if infile_ext == '.sas7bdat':
         try:
-            convertSASDATtoCSV(sas_path, infile, logfile, outfile, splash)
-            logger.info('SAS data was converted Successfully.')
+            convertSASDATtoCSV(sas_path,
+                               infile,
+                               logfile,
+                               outfile)
+            msg = 'SAS data was converted to CSV.'
+            logger.info(msg)
+        except Exception as e:
+            logger.error(e)
+            sys.exit(1)
+    elif infile_ext == '.sas':
+        try:
+            sasExec(sas_path,
+                    infile,
+                    logfile,
+                    outfile)
+            convertEncode(logfile)
+            if os.path.exists(outfile):
+                convertEncode(outfile)
+            msg = 'SAS program was executed.'
+            logger.info(msg)
         except Exception as e:
             logger.error(e)
             sys.exit(1)
     else:
-        try:
-            sasExec(sas_path, infile, logfile, outfile, splash)
-            logger.info('SAS program was executed.')
-        except Exception as e:
-            logger.error(e.args)
-            sys.exit(1)
+        err_msg = 'Specify .sas or .sas7bdat file for "-i" option.'
+        logger.error(err_msg)
+        sys.exit(1)
