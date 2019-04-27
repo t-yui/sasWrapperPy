@@ -1,7 +1,7 @@
 # sasWrapperPy
 WSL でコマンドにより SAS を動かすための Wrapper です。
 
-# 機能
+## 機能
 ### sas プログラムの実行
 ```bash
 $ sas -i example.sas
@@ -12,7 +12,7 @@ $ sas -i example.sas
 $ sas -i data.sas7bdat
 ```
 
-# 使用方法
+## 使用方法
 ### 1. 依存ライブラリのインストール
 ```bash
 $ pip install -r requirements.txt
