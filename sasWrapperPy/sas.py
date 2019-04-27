@@ -40,7 +40,9 @@ def argParse():
 
 def confParse():
     config = configparser.ConfigParser()
-    path = os.path.dirname(sys.argv[0])
+    path = os.path.dirname(sys.executable)
+    if path == '':
+        path = '.'
     config.read(path + '/sas.ini')
     return config
 
@@ -81,8 +83,8 @@ def convertSASDATtoCSV(sas_path, infile, logfile, outfile):
         + '> ./tmp_convert/convert.sas'
     os.system(cmd)
     conv_prog = convertPath(getCurrentDir() + '/tmp_convert/convert.sas')
-    if logfile == getCurrentDir():
-        logfile = logfile + '/tmp_convert/convert.log'
+    logfile = os.path.dirname(logfile) \
+            + '/tmp_convert/convert.log'
     sasExec(sas_path,
             conv_prog,
             logfile,
@@ -179,7 +181,7 @@ if __name__ == '__main__':
             convertEncode(logfile)
             if os.path.exists(outfile):
                 convertEncode(outfile)
-            msg = 'SAS program was executed.'
+            msg = 'SAS execution step finished.'
             logger.info(msg)
         except Exception as e:
             logger.error(e)
