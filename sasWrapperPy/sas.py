@@ -40,7 +40,7 @@ def argParse():
 
 def confParse():
     config = configparser.ConfigParser()
-    path = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.dirname(sys.argv[0])
     config.read(path + '/sas.ini')
     return config
 
