@@ -1,13 +1,24 @@
 # sasWrapperPy
 WSL でコマンドにより SAS を動かすための Wrapper です。
 
+# システム要件
+- Windows 10
+- ubuntu on Windows Subsystem for Linux
+- SAS >= 9.4 on Windows
+- python3 and pip3 installed in wsl ubuntu
+
 ## 機能
-### sas プログラムの実行
+### SAS プログラム（.sas）の実行
 ```bash
-$ sas -i example.sas
+$ sas -i example.sas [-l logfile] [-o outfile]
 ```
 
-### sas データセット（.sas7bdat）の CSV ファイルへの変換
+- オプション
+    - `-i` : [必須] .sas ファイル名とパスを指定（相対パスでも可）
+    - `-l` : .log ファイル（SAS のログファイル）名とパスを指定（フルパスで記述）
+    - `-o` : .lst ファイル（SAS の出力ファイル）名とパスを指定（フルパスで記述）
+
+### SAS データセット（.sas7bdat）の CSV ファイルへの変換
 ```bash
 $ sas -i data.sas7bdat
 ```
