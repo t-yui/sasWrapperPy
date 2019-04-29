@@ -23,6 +23,9 @@ $ sas -i example.sas [-l logfile] [-o outfile]
 $ sas -i data.sas7bdat
 ```
 
+- オプション
+    - `-i` : [必須] .sas7bdat ファイル名とパスを指定（相対パスでも可）
+ 
 ## 使用方法
 ### 1. 依存ライブラリのインストール
 ```bash
