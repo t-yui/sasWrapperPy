@@ -10,7 +10,7 @@ WSL でコマンドにより SAS を動かすための Wrapper です。
 ## 機能
 ### SAS プログラム（.sas）の実行
 ```bash
-$ sas -i example.sas [-l logfile] [-o outfile]
+$ sas -i example.sas [-l <logfile>] [-o <outfile>]
 ```
 
 - オプション
@@ -25,7 +25,23 @@ $ sas -i data.sas7bdat
 
 - オプション
     - `-i` : [必須] .sas7bdat ファイル名とパスを指定（相対パスでも可）
- 
+
+### SAS 出力ファイル（.log, .lst）の文字コード変換
+```bash
+$ sas -i output.log [-e <encode>]
+```
+
+- オプション
+    - `-i` : [必須] .log または .lst ファイル名とパスを指定（相対パスでも可）
+    - `-e` : 変換後の文字コードを以下より指定
+        - `utf-8`（デフォルト）
+        - `shift-jis`
+
+### SAS Help（documentation）の表示
+```bash
+$ sas -d
+```
+
 ## 使用方法
 ### 1. 依存ライブラリのインストール
 ```bash
