@@ -45,7 +45,7 @@ $ sas -d
 ## 使用方法
 ### 1. 依存ライブラリのインストール
 ```bash
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 ### 2. バイナリの生成
@@ -54,10 +54,13 @@ $ python3 setup.py build
 ```
 
 ### 3. 実行準備
-- sas.ini ファイルに、WSL でマウントしている windows ホスト における sas.exe ファイルのパスを記述
+- sas.ini ファイルに、WSL でマウントしている windows における以下のファイルへのパスを記述
+    - sas.exe（`sas_path` に指定）
+    - SASDocViewer.exe（`help_path` に指定）
 ```sas.ini
 [GENERAL]
-sas_path=/mnt/c/'Program Files'/SASHome/SASFoundation/'9.4'
+sas_path=/mnt/c/'Program Files'/SASHome/SASFoundation/9.4
+help_path=/mnt/c/'Program Files'/SASHome/SASHelpViewerforWindows/9.43
 ```
 
 - sas.ini ファイルをバイナリと同じディレクトリへコピー
