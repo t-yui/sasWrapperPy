@@ -18,5 +18,8 @@ exe = Executable(script = './sasWrapperPy/sas.py',
 
 setup(name = 'sas',
       version = '0.1',
-      description = 'converter',
+      author='Yui Tomo',
+      license='MIT',
+      description = 'Wrapper of SAS commands on Ubuntu on WSL',
+      long_description=open('README.md').read(),
       executables = [exe])
